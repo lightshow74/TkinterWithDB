@@ -9,17 +9,19 @@ class MainWindow:
         # Set up the main GUI window
         self.parent.geometry("450x450")
         self.parent.title("Olympic Medalists")
+        self.parent.columnconfigure(0,weight=1)
+        self.parent.rowconfigure(1,weight=1)
+        
         menubar = MainMenu(self.parent)
-        fr_selectall = MainFrame(self.parent,"frameAll")
-        fr_selectmedal = MainFrame(self.parent,"frameMedal")
 
 class MainMenu:
     def __init__(self, parent):
         self.parent = parent
         # create a menu bar
         self.toolbar = Frame(self.parent ,bg="#006494", padx=10, pady=5)
-        self.toolbar.pack(fill="x")
+        self.toolbar.grid(row=0, column=0, sticky=E+W)
         
+        # The menu buttons
         self.btn_all = Button(self.toolbar, text = "All", command = select_all)
         self.btn_all.grid(row=0, column=0, padx=10)
 
@@ -35,47 +37,19 @@ class MainFrame:
         self.id = FrameID
 
         self.frame_main = Frame(self.parent ,bg="#ffcc00", padx=10, pady=5)
-        self.frame_main.pack(fill="both", expand=1)
-
-        medalists = select_all()
-
-        for i,row in enumerate(medalists):
-            rowID =  int(i)
-            Label(self.frame_main, text=row[0],bg="#ffcc00", anchor="w").grid(row=rowID, column=0, padx=10, sticky=E+W)
-            Label(self.frame_main, text=row[1],bg="#ffcc00", anchor="w").grid(row=rowID, column=1, padx=10, sticky=E+W)
-            Label(self.frame_main, text=row[2],bg="#ffcc00", anchor="w").grid(row=rowID, column=2, padx=10, sticky=E+W)
-            Label(self.frame_main, text=row[3],bg="#ffcc00", anchor="w").grid(row=rowID, column=3, padx=10, sticky=E+W)
-
-        """
-        # create a frame for content frames to sit inside
-        self.id = Frame(self.parent, bg="#ffcc00", padx=10, pady=10)
-        self.id.pack(fill="both", expand = 1)
-
-        f1 = Frame("main",bg="#ffbbcc").pack(fill="both", expand = 1)
-        #content_intro = ContentFrame(self.id, "intro")
-        
-"""
-"""class ContentFrame:
-    def __init__(self, parent, FrameID):
-        self.parent = parent
-        self.id = FrameID
-        #self.content = content
-        
-        # create a frame for the forms
-        self.id = Frame(self.parent, bg="#ffbbcc")
-        self.id.grid(row=1, column=0, sticky='news')
-
-"""
+        self.frame_main.grid(row=1, column=0, sticky=N+E+W+S)
 
 
 
 """ Functions """
 
 def select_all():
+    frame = "f1"
     with sqlite3.connect("medals.db") as db:
         cursor = db.cursor()
         cursor.execute("select Medal,FirstName,LastName,Event from Medalists")
         medalists = cursor.fetchall()
+        raise_frame(frame)
         print(medalists)
         return medalists
 
@@ -128,7 +102,24 @@ def main():
     root = Tk()
     app = MainWindow(root)
 
-    root.mainloop()
+    f1 = Frame(root, bg="#ffcc00", padx=10, pady=5)
+    f2 = Frame(root, bg="#ffcc00")
+    f3 = Frame(root, bg="#ffcc00")
+    f4 = Frame(root, bg="#ffcc00")
+
+    for frame in (f1, f2, f3, f4):
+        frame.grid(row=1, column=0, sticky=N+E+W+S)
+
+    f1.tkraise()
+    
+    medalists = select_all()
+    for i,row in enumerate(medalists):
+        rowID =  int(i)
+        Label(f1, text=row[0],bg="#ffcc00", anchor="w").grid(row=rowID, column=0, padx=10, sticky=E+W)
+        Label(f1, text=row[1],bg="#ffcc00", anchor="w").grid(row=rowID, column=1, padx=10, sticky=E+W)
+        Label(f1, text=row[2],bg="#ffcc00", anchor="w").grid(row=rowID, column=2, padx=10, sticky=E+W)
+        Label(f1, text=row[3],bg="#ffcc00", anchor="w").grid(row=rowID, column=3, padx=10, sticky=E+W)
+
 
 
 main()
