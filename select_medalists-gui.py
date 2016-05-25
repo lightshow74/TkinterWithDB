@@ -13,6 +13,7 @@ class MainWindow:
         self.parent.rowconfigure(1,weight=1)
         
         menubar = MainMenu(self.parent)
+        content = MainFrame(self.parent,"frame1")
 
 class MainMenu:
     def __init__(self, parent):
@@ -39,6 +40,24 @@ class MainFrame:
         self.frame_main = Frame(self.parent ,bg="#ffcc00", padx=10, pady=5)
         self.frame_main.grid(row=1, column=0, sticky=N+E+W+S)
 
+        medalists = select_all()
+        for i,row in enumerate(medalists):
+            rowID =  int(i)
+            Label(self.frame_main, text=row[0],bg="#ffcc00", anchor="w").grid(row=rowID, column=0, padx=10, sticky=E+W)
+            Label(self.frame_main, text=row[1],bg="#ffcc00", anchor="w").grid(row=rowID, column=1, padx=10, sticky=E+W)
+            Label(self.frame_main, text=row[2],bg="#ffcc00", anchor="w").grid(row=rowID, column=2, padx=10, sticky=E+W)
+            Label(self.frame_main, text=row[3],bg="#ffcc00", anchor="w").grid(row=rowID, column=3, padx=10, sticky=E+W)
+
+
+        self.frame_add = Frame(self.parent, bg="#006494", padx=10, pady=5)
+        self.frame_add.grid(row=2, column=0, sticky=E+W)
+        
+        entry_add = Entry(self.frame_add)
+        entry_add.grid(row=0,column=0)
+
+        self.btn_medal = Button(self.frame_add, text = "Medal", command = select_medal)
+        self.btn_medal.grid(row=0, column=1, padx=10)
+
 
 
 """ Functions """
@@ -49,12 +68,11 @@ def select_all():
         cursor = db.cursor()
         cursor.execute("select Medal,FirstName,LastName,Event from Medalists")
         medalists = cursor.fetchall()
-        raise_frame(frame)
         print(medalists)
         return medalists
 
-def select_medal(medal):
-    medaltype=medal
+def select_medal():
+    medaltype = entry_add.get()
     with sqlite3.connect("medals.db") as db:
         cursor = db.cursor()
         cursor.execute("SELECT Medal,FirstName,LastName,Event FROM Medalists WHERE Medal='{0}'".format(medaltype))
@@ -95,32 +113,10 @@ def menu():
         print("Please choose a valid option")
     menu()
 
-def raise_frame(frame):
-    frame.tkraise()
-
 def main():
     root = Tk()
     app = MainWindow(root)
-
-    f1 = Frame(root, bg="#ffcc00", padx=10, pady=5)
-    f2 = Frame(root, bg="#ffcc00")
-    f3 = Frame(root, bg="#ffcc00")
-    f4 = Frame(root, bg="#ffcc00")
-
-    for frame in (f1, f2, f3, f4):
-        frame.grid(row=1, column=0, sticky=N+E+W+S)
-
-    f1.tkraise()
     
-    medalists = select_all()
-    for i,row in enumerate(medalists):
-        rowID =  int(i)
-        Label(f1, text=row[0],bg="#ffcc00", anchor="w").grid(row=rowID, column=0, padx=10, sticky=E+W)
-        Label(f1, text=row[1],bg="#ffcc00", anchor="w").grid(row=rowID, column=1, padx=10, sticky=E+W)
-        Label(f1, text=row[2],bg="#ffcc00", anchor="w").grid(row=rowID, column=2, padx=10, sticky=E+W)
-        Label(f1, text=row[3],bg="#ffcc00", anchor="w").grid(row=rowID, column=3, padx=10, sticky=E+W)
-
-
 
 main()
 
