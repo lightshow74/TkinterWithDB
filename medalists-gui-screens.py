@@ -47,13 +47,16 @@ class MainWindow:
             frame.grid(row=1, column=0, sticky=N+E+W+S)
 
         # Frame 1 - Select All
-        medalists = select_all()
-        for i,row in enumerate(medalists):
-            rowID =  int(i)
-            Label(f1, text=row[0],bg="#ffcc00", anchor="w").grid(row=rowID, column=0, padx=10, sticky=E+W)
-            Label(f1, text=row[1],bg="#ffcc00", anchor="w").grid(row=rowID, column=1, padx=10, sticky=E+W)
-            Label(f1, text=row[2],bg="#ffcc00", anchor="w").grid(row=rowID, column=2, padx=10, sticky=E+W)
-            Label(f1, text=row[3],bg="#ffcc00", anchor="w").grid(row=rowID, column=3, padx=10, sticky=E+W)
+        def refreshAll():
+            medalists = select_all()
+            for i,row in enumerate(medalists):
+                rowID =  int(i)
+                Label(f1, text=row[0],bg="#ffcc00", anchor="w").grid(row=rowID, column=0, padx=10, sticky=E+W)
+                Label(f1, text=row[1],bg="#ffcc00", anchor="w").grid(row=rowID, column=1, padx=10, sticky=E+W)
+                Label(f1, text=row[2],bg="#ffcc00", anchor="w").grid(row=rowID, column=2, padx=10, sticky=E+W)
+                Label(f1, text=row[3],bg="#ffcc00", anchor="w").grid(row=rowID, column=3, padx=10, sticky=E+W)
+        
+        Button(f1, text = "Refresh", command = refreshAll).grid(row=0, column=4)
 
         # Frame 2 - Select Medal
 
@@ -63,7 +66,7 @@ class MainWindow:
         f2_results.grid(row=0, column=1, sticky=N+E+W+S)
 
         variable = StringVar(f2_form)
-        variable.set("Gold") # default value
+        variable.set("Silver") # default value
 
         def medaltype(medal):
             select_medal_results = select_medal(variable.get())
@@ -74,8 +77,23 @@ class MainWindow:
                 Label(f2_results, text=row[1],bg="#ffcc00", anchor="w").grid(row=rowID, column=1, padx=10, sticky=E+W)
                 Label(f2_results, text=row[2],bg="#ffcc00", anchor="w").grid(row=rowID, column=2, padx=10, sticky=E+W)
                 Label(f2_results, text=row[3],bg="#ffcc00", anchor="w").grid(row=rowID, column=3, padx=10, sticky=E+W)
+
+        medaltype(variable) #Initial display of the results
        
-        o = OptionMenu(f2_form, variable, "Gold", "Silver", "Bronze", command=medaltype).pack()
+        #o = OptionMenu(f2_form, variable, "Gold", "Silver", "Bronze", command=medaltype).pack()
+
+        # Radio Buttons
+        MODES = [
+        ("Gold", "Gold"),
+        ("Silver", "Silver"),
+        ("Bronze", "Bronze"),
+        ]
+
+        for text, mode in MODES:
+            b = Radiobutton(f2_form, text=text, variable=variable, value=mode, command=lambda: medaltype(mode), bg="#ffcc00")
+            b.pack(anchor="w")
+
+        
 
         # Frame 3 - Add Medal
 
@@ -84,26 +102,38 @@ class MainWindow:
         Label(f3, text="Medal", bg="#ffcc00", anchor="w").grid(row=2, column=0,sticky=E+W)
         Label(f3, text="Event", bg="#ffcc00", anchor="w").grid(row=3, column=0,sticky=E+W)
         
-        NewFirstName = Entry(f3).grid(row=0,column=1)
-        NewLastName = Entry(f3).grid(row=1,column=1)
-        NewMedal = Entry(f3).grid(row=2,column=1)
-        NewEvent = Entry(f3).grid(row=3,column=1)
+        NewFirstName = StringVar()
+        NewLastName = StringVar()
+        NewMedal = StringVar()
+        NewEvent = StringVar()
+        
+        entry_firstname = Entry(f3,textvariable=NewFirstName).grid(row=0,column=1)
+        entry_lastname = Entry(f3,textvariable=NewLastName).grid(row=1,column=1)
+        entry_medal = Entry(f3,textvariable=NewMedal).grid(row=2,column=1)
+        entry_event = Entry(f3,textvariable=NewEvent).grid(row=3,column=1)
 
         def Add_Medal_Var():
             firstname = NewFirstName.get()
             lastname = NewLastName.get()
             event = NewEvent.get()
             medal = NewMedal.get()
+
             add_medalist(medal,firstname,lastname,event)
+            print("You have added: {0}, {1}, {2}, {3}".format(medal,firstname,lastname,event))
 
         Button(f3, text = "Add Medalist", command = Add_Medal_Var).grid(row=4, column=1, padx=10)
 
-        self.show_frame(f1)
+        self.show_frame(f2)
 
     def show_frame(self, page_name):
         '''Show a frame for the given page name'''
         frame = page_name
-        frame.tkraise()
+        print(page_name)
+        if page_name == "f1":
+            frame.tkraise()
+            app.refreshAll()
+        else:
+            frame.tkraise()
 
 
 
@@ -134,14 +164,12 @@ def add_medalist(medal,firstname,lastname,event):
     NewEvent = event
 
     newrecord = (NewMedal, NewFirstName, NewLastName, NewEvent)
-    print(newrecord)
-"""
+    
     with sqlite3.connect("medals.db") as db:
         cursor = db.cursor()
         cursor.execute("INSERT INTO Medalists(Medal,FirstName,LastName,Event) VALUES (?,?,?,?)",newrecord)
         db.commit()
-"""
-        
+    
 
 def main():
     root = Tk()
